@@ -1,0 +1,84 @@
+_schema-version: 3.3.0
+ID: postgrinho
+version: 1.0.0
+description: "A simple CAP project."
+parameters:
+  enable-parallel-deployments: true
+build-parameters:
+  before-all:
+    - builder: custom
+      commands:
+        - npm install
+        - npx -p @sap/cds-dk cds build --production
+        - cp pg-package.json gen/pg/package.json
+        - cp package-lock.json gen/pg/package-lock.json
+  # build-parameters:
+  # before-all:
+  #   - builder: custom
+  #     commands:
+  #       - npm ci
+  #       - npx cds build --production
+modules:
+  - name: postgrinho-srv
+    type: nodejs
+    path: gen/srv
+    parameters:
+      instances: 1
+      buildpack: nodejs_buildpack
+      readiness-health-check-type: http
+      readiness-health-check-http-endpoint: /health
+    build-parameters:
+      builder: npm-ci
+    provides:
+      - name: srv-api # required by consumers of CAP services (e.g. approuter)
+        properties:
+          srv-url: ${default-url}
+    requires:
+      - name: postgrinho-auth
+      - name: postgrinho-postgres
+
+  - name: postgrinho-postgres-deployer
+    type: nodejs
+    path: gen/pg
+    parameters:
+      buildpack: nodejs_buildpack
+      no-route: true
+      no-start: true
+      tasks:
+        - name: deploy-to-postgresql
+          command: npm start
+    requires:
+      - name: postgrinho-postgres          
+
+  - name: postgrinho-postgres-adminer
+    type: application
+    build-parameters:
+      no-source: true
+    parameters:
+      # Only needed to track down issues in the PostgreSQL Database deployment
+      no-route: false
+      no-start: false
+      disk-quota: 1GB
+      memory: 1024MB
+      docker:
+        image: dockette/adminer:pgsql
+      instances: 1
+    requires:
+      - name: postgrinho-postgres
+
+resources:
+  - name: postgrinho-auth
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: xsuaa
+      service-plan: application
+      path: ./xs-security.json
+      config:
+        xsappname: postgrinho-${org}-${space}
+        tenant-mode: dedicated
+  - name: postgrinho-postgres
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: postgresql-db
+      service-plan: trial
+      path: ./pg-options.json
