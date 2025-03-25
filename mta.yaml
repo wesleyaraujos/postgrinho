@@ -48,7 +48,7 @@ modules:
         - name: deploy-to-postgresql
           command: npm start
     requires:
-      - name: postgrinho-postgres          
+      - name: postgrinho-postgres
 
   - name: postgrinho-postgres-adminer
     type: application
