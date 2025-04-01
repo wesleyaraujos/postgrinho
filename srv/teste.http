@@ -1,0 +1,48 @@
+@server = http://localhost:4004
+@auth = Authorization: Basic alice:
+
+
+### z2xpr1
+# @name z2xpr1_GET
+GET {{server}}/odata/v4/parameters/z2xpr1
+{{auth}}
+
+
+### z2xpr1
+# @name z2xpr1_POST
+POST {{server}}/odata/v4/parameters/z2xpr1
+Content-Type: application/json
+{{auth}}
+
+{
+  "app": "z2xpr1-teste",
+  "variable": "z2xpr1-16136289",
+  "value": "value-16136289",
+  "description": "description-16136289"
+}
+
+
+### z2xpr1
+# @name z2xpr1_PATCH
+PATCH {{server}}/odata/v4/parameters/z2xpr1(ID=16136289-cf70-446d-8b34-8c827c76fb83,app='z2xpr1-16136289',variable='z2xpr1-16136289')
+Content-Type: application/json
+{{auth}}
+
+{
+  "app": "z2xpr1-16136289",
+  "variable": "z2xpr1-16136289",
+  "ID": "16136289-cf70-446d-8b34-8c827c76fb83",
+  "value": "value-16136289",
+  "description": "description-16136289",
+  "createdAt": "2000-02-04T00:00:00.000Z",
+  "createdBy": "createdBy.9luu9@example.org",
+  "modifiedAt": "2004-03-08T00:00:00.000Z",
+  "modifiedBy": "modifiedBy.9luu9@example.net"
+}
+
+
+### z2xpr1
+# @name z2xpr1_DELETE
+DELETE {{server}}/odata/v4/parameters/z2xpr1(ID=16136289-cf70-446d-8b34-8c827c76fb83,app='z2xpr1-16136289',variable='z2xpr1-16136289')
+Content-Type: application/json
+{{auth}}
